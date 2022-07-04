@@ -1,0 +1,12 @@
+# rename this file to .env when running tests
+# this file should be maintained to include all environment variables required for integration tests
+
+IT_COSMOS_KEY=
+IT_COSMOS_URL=
+IT_COSMOS_CONTAINER_NAME=jenkins
+IT_COSMOS_DATABASE_NAME=jenkins
+
+IT_SP_SUBSCRIPTION_ID=
+IT_SP_CLIENT_ID=
+IT_SP_CLIENT_SECRET=
+IT_SP_TENANT_ID=

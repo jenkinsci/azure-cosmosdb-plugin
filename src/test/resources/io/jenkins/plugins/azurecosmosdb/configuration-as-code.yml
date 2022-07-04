@@ -1,0 +1,13 @@
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - azureCosmosDBKey:
+              id: "key-credential-id"
+              key: "abcd"
+          - azureCosmosDB:
+              credentialsId: "key-credential-id"
+              id: "cosmos-db"
+              preferredRegion: "UK South"
+              scope: GLOBAL
+              url: "https://your-account-name.documents.azure.com:443/"

@@ -1,0 +1,15 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form" xmlns:c="/lib/credentials">
+    <f:entry title="${%Credentials ID}" field="credentialsId">
+        <c:select />
+    </f:entry>
+    <f:entry title="${%Database}" field="database">
+        <f:textbox />
+    </f:entry>
+    <f:entry title="${%Container}" field="container">
+        <f:textbox />
+    </f:entry>
+    <f:entry title="${%Document}" field="document" description="${%This is a groovy object, ignore the quotes snippet generator creates, see the help for an example}">
+        <f:textbox />
+    </f:entry>
+</j:jelly>
