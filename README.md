@@ -17,6 +17,25 @@ It also integrates with:
 When creating a credential of type `Azure Cosmos DB` you have to select another credential type depending on how you want to authenticate to Cosmos DB.
 Key, service principal and managed identity are all supported.
 
+### RBAC setup
+
+If you are using Azure RBAC for authentication you will need to grant your principal permissions:
+
+```shell
+resourceGroupName='<myResourceGroup>'
+accountName='<myCosmosAccount>'
+roleDefinitionName='Cosmos DB Built-in Data Contributor'
+# Make sure to use the Object ID as found in the Enterprise applications section of the Azure Active Directory portal blade.
+# the other Object ID does not work for this
+# for managed identities make sure you update the filter in the portal to include them by default it's just 'Enterprise Applications'
+principalId='<aadPrincipalId>'
+az cosmosdb sql role assignment create --account-name $accountName --resource-group $resourceGroupName --scope "/" --principal-id $principalId --role-definition-name $roleDefinitionName
+```
+
+More documentation can be found on the Microsoft page: [Configure role-based access control with Azure Active Directory for your Azure Cosmos DB account](https://docs.microsoft.com/en-us/azure/cosmos-db/how-to-setup-rbac).
+
+### Configuration as Code
+
 If you are a [Configuration as Code](https://plugins.jenkins.io/configuration-as-code) user you can use the relevant part of the below example:
 
 ```yaml
