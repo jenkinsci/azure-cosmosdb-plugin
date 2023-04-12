@@ -15,38 +15,36 @@ import java.util.Collections;
 
 public class CredentialsHelper {
 
-  private CredentialsHelper() {}
+    private CredentialsHelper() {}
 
-  public static StandardCredentials findCredentials(String credentialsId, Item context) {
-    return CredentialsMatchers.firstOrNull(
-        CredentialsProvider.lookupCredentials(
-            StandardCredentials.class, context, ACL.SYSTEM, Collections.emptyList()),
-        CredentialsMatchers.withId(credentialsId));
-  }
-
-  public static CosmosClient createClient(
-      StandardCredentials standardCredentials, String preferredRegion, String url) {
-    CosmosClientBuilder builder =
-        new CosmosClientBuilder()
-            .endpoint(url)
-            .preferredRegions(Collections.singletonList(preferredRegion))
-            .consistencyLevel(ConsistencyLevel.EVENTUAL)
-            .gatewayMode();
-
-    if (standardCredentials instanceof AzureCosmosDBKeyCredentials) {
-      builder =
-          builder.key(((AzureCosmosDBKeyCredentials) standardCredentials).getKey().getPlainText());
-    } else if (standardCredentials instanceof AzureBaseCredentials) {
-      TokenCredential tokenCredential =
-          AzureCredentials.getTokenCredential((AzureBaseCredentials) standardCredentials);
-
-      builder = builder.credential(tokenCredential);
-    } else {
-      throw new RuntimeException(
-          "Unexpected credentials type: "
-              + standardCredentials.getClass().getSimpleName().replace("Impl", ""));
+    public static StandardCredentials findCredentials(String credentialsId, Item context) {
+        return CredentialsMatchers.firstOrNull(
+                CredentialsProvider.lookupCredentials(
+                        StandardCredentials.class, context, ACL.SYSTEM, Collections.emptyList()),
+                CredentialsMatchers.withId(credentialsId));
     }
 
-    return builder.buildClient();
-  }
+    public static CosmosClient createClient(
+            StandardCredentials standardCredentials, String preferredRegion, String url) {
+        CosmosClientBuilder builder = new CosmosClientBuilder()
+                .endpoint(url)
+                .preferredRegions(Collections.singletonList(preferredRegion))
+                .consistencyLevel(ConsistencyLevel.EVENTUAL)
+                .gatewayMode();
+
+        if (standardCredentials instanceof AzureCosmosDBKeyCredentials) {
+            builder = builder.key(
+                    ((AzureCosmosDBKeyCredentials) standardCredentials).getKey().getPlainText());
+        } else if (standardCredentials instanceof AzureBaseCredentials) {
+            TokenCredential tokenCredential =
+                    AzureCredentials.getTokenCredential((AzureBaseCredentials) standardCredentials);
+
+            builder = builder.credential(tokenCredential);
+        } else {
+            throw new RuntimeException("Unexpected credentials type: "
+                    + standardCredentials.getClass().getSimpleName().replace("Impl", ""));
+        }
+
+        return builder.buildClient();
+    }
 }
