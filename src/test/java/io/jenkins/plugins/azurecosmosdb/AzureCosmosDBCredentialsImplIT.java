@@ -21,80 +21,82 @@ import org.jvnet.hudson.test.MockAuthorizationStrategy;
 
 public class AzureCosmosDBCredentialsImplIT extends BaseIntegrationTest {
 
-  @Rule public JenkinsRule r = new JenkinsRule();
+    @Rule
+    public JenkinsRule r = new JenkinsRule();
 
-  @Test
-  public void doTestConnectionAdminValidatesOk() {
-    loadCredentials();
-    JenkinsRule.DummySecurityRealm realm = r.createDummySecurityRealm();
-    r.jenkins.setSecurityRealm(realm);
-    r.jenkins.setAuthorizationStrategy(
-        new MockAuthorizationStrategy().grant(Jenkins.ADMINISTER).everywhere().to("cassandra"));
+    @Test
+    public void doTestConnectionAdminValidatesOk() {
+        loadCredentials();
+        JenkinsRule.DummySecurityRealm realm = r.createDummySecurityRealm();
+        r.jenkins.setSecurityRealm(realm);
+        r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy()
+                .grant(Jenkins.ADMINISTER)
+                .everywhere()
+                .to("cassandra"));
 
-    AzureCosmosDBCredentialsImpl.DescriptorImpl descriptor =
-        new AzureCosmosDBCredentialsImpl.DescriptorImpl();
+        AzureCosmosDBCredentialsImpl.DescriptorImpl descriptor = new AzureCosmosDBCredentialsImpl.DescriptorImpl();
 
-    User cassandra = requireNonNull(User.getById("cassandra", true));
-    try (ACLContext ignored = ACL.as2(cassandra.impersonate2())) {
-      FormValidation validation = descriptor.doTestConnection("key", "UK South", COSMOS_URL, null);
+        User cassandra = requireNonNull(User.getById("cassandra", true));
+        try (ACLContext ignored = ACL.as2(cassandra.impersonate2())) {
+            FormValidation validation = descriptor.doTestConnection("key", "UK South", COSMOS_URL, null);
 
-      assertThat(validation, hasKind(FormValidation.Kind.OK));
-      assertThat(validation.getMessage(), containsString("Found "));
+            assertThat(validation, hasKind(FormValidation.Kind.OK));
+            assertThat(validation.getMessage(), containsString("Found "));
+        }
     }
-  }
 
-  @Test
-  public void doTestConnectionWithServicePrincipalAndAdminValidatesOk() {
-    loadServicePrincipalCredentials();
-    JenkinsRule.DummySecurityRealm realm = r.createDummySecurityRealm();
-    r.jenkins.setSecurityRealm(realm);
-    r.jenkins.setAuthorizationStrategy(
-        new MockAuthorizationStrategy().grant(Jenkins.ADMINISTER).everywhere().to("cassandra"));
+    @Test
+    public void doTestConnectionWithServicePrincipalAndAdminValidatesOk() {
+        loadServicePrincipalCredentials();
+        JenkinsRule.DummySecurityRealm realm = r.createDummySecurityRealm();
+        r.jenkins.setSecurityRealm(realm);
+        r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy()
+                .grant(Jenkins.ADMINISTER)
+                .everywhere()
+                .to("cassandra"));
 
-    AzureCosmosDBCredentialsImpl.DescriptorImpl descriptor =
-        new AzureCosmosDBCredentialsImpl.DescriptorImpl();
+        AzureCosmosDBCredentialsImpl.DescriptorImpl descriptor = new AzureCosmosDBCredentialsImpl.DescriptorImpl();
 
-    User cassandra = requireNonNull(User.getById("cassandra", true));
-    try (ACLContext ignored = ACL.as2(cassandra.impersonate2())) {
-      FormValidation validation = descriptor.doTestConnection("sp", "UK South", COSMOS_URL, null);
+        User cassandra = requireNonNull(User.getById("cassandra", true));
+        try (ACLContext ignored = ACL.as2(cassandra.impersonate2())) {
+            FormValidation validation = descriptor.doTestConnection("sp", "UK South", COSMOS_URL, null);
 
-      assertThat(validation, hasKind(FormValidation.Kind.OK));
-      assertThat(validation.getMessage(), containsString("Found "));
+            assertThat(validation, hasKind(FormValidation.Kind.OK));
+            assertThat(validation.getMessage(), containsString("Found "));
+        }
     }
-  }
 
-  /**
-   * This could almost be a regular IT without real credentials but if the URL doesn't exist this
-   * test takes over 1 minute because it retries a lot with backoff, and I couldn't find any
-   * configuration for it.
-   */
-  @Test
-  public void doTestConnectionAdminInvalidKeyAndAccountErrors() {
-    List<Credentials> credentials = SystemCredentialsProvider.getInstance().getCredentials();
-    credentials.add(
-        new AzureCosmosDBKeyCredentialsImpl(
-            "key", null, Secret.fromString("dGhpc2lzbm90YXBhc3N3b3JkCg==")));
+    /**
+     * This could almost be a regular IT without real credentials but if the URL doesn't exist this
+     * test takes over 1 minute because it retries a lot with backoff, and I couldn't find any
+     * configuration for it.
+     */
+    @Test
+    public void doTestConnectionAdminInvalidKeyAndAccountErrors() {
+        List<Credentials> credentials = SystemCredentialsProvider.getInstance().getCredentials();
+        credentials.add(
+                new AzureCosmosDBKeyCredentialsImpl("key", null, Secret.fromString("dGhpc2lzbm90YXBhc3N3b3JkCg==")));
 
-    JenkinsRule.DummySecurityRealm realm = r.createDummySecurityRealm();
-    r.jenkins.setSecurityRealm(realm);
-    r.jenkins.setAuthorizationStrategy(
-        new MockAuthorizationStrategy().grant(Jenkins.ADMINISTER).everywhere().to("cassandra"));
+        JenkinsRule.DummySecurityRealm realm = r.createDummySecurityRealm();
+        r.jenkins.setSecurityRealm(realm);
+        r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy()
+                .grant(Jenkins.ADMINISTER)
+                .everywhere()
+                .to("cassandra"));
 
-    AzureCosmosDBCredentialsImpl.DescriptorImpl descriptor =
-        new AzureCosmosDBCredentialsImpl.DescriptorImpl();
+        AzureCosmosDBCredentialsImpl.DescriptorImpl descriptor = new AzureCosmosDBCredentialsImpl.DescriptorImpl();
 
-    User cassandra = requireNonNull(User.getById("cassandra", true));
-    try (ACLContext ignored = ACL.as2(cassandra.impersonate2())) {
-      FormValidation validation = descriptor.doTestConnection("key", "UK South", COSMOS_URL, null);
+        User cassandra = requireNonNull(User.getById("cassandra", true));
+        try (ACLContext ignored = ACL.as2(cassandra.impersonate2())) {
+            FormValidation validation = descriptor.doTestConnection("key", "UK South", COSMOS_URL, null);
 
-      assertThat(validation, hasKind(FormValidation.Kind.ERROR));
-      assertThat(validation.getMessage(), containsString("Failed to validate credentials"));
+            assertThat(validation, hasKind(FormValidation.Kind.ERROR));
+            assertThat(validation.getMessage(), containsString("Failed to validate credentials"));
+        }
     }
-  }
 
-  private void loadCredentials() {
-    List<Credentials> credentials = SystemCredentialsProvider.getInstance().getCredentials();
-    credentials.add(
-        new AzureCosmosDBKeyCredentialsImpl("key", null, Secret.fromString(COSMOS_KEY)));
-  }
+    private void loadCredentials() {
+        List<Credentials> credentials = SystemCredentialsProvider.getInstance().getCredentials();
+        credentials.add(new AzureCosmosDBKeyCredentialsImpl("key", null, Secret.fromString(COSMOS_KEY)));
+    }
 }

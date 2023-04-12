@@ -4,9 +4,9 @@ import com.cloudbees.plugins.credentials.common.StandardCredentials;
 
 public interface AzureCosmosDBCredentials extends StandardCredentials {
 
-  String getCredentialsId();
+    String getCredentialsId();
 
-  String getPreferredRegion();
+    String getPreferredRegion();
 
-  String getUrl();
+    String getUrl();
 }

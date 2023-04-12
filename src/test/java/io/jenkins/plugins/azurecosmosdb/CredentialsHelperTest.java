@@ -12,18 +12,17 @@ import org.jvnet.hudson.test.JenkinsRule;
 
 public class CredentialsHelperTest {
 
-  @Rule public JenkinsRule j = new JenkinsRule();
+    @Rule
+    public JenkinsRule j = new JenkinsRule();
 
-  @Test
-  public void createClient() {
-    StringCredentialsImpl credentials =
-        new StringCredentialsImpl(null, "invalid-type", null, Secret.fromString("some-string"));
+    @Test
+    public void createClient() {
+        StringCredentialsImpl credentials =
+                new StringCredentialsImpl(null, "invalid-type", null, Secret.fromString("some-string"));
 
-    RuntimeException runtimeException =
-        assertThrows(
-            RuntimeException.class,
-            () ->
-                CredentialsHelper.createClient(credentials, "UK South", "https://does-not-matter"));
-    assertThat(runtimeException.getMessage(), is("Unexpected credentials type: StringCredentials"));
-  }
+        RuntimeException runtimeException = assertThrows(
+                RuntimeException.class,
+                () -> CredentialsHelper.createClient(credentials, "UK South", "https://does-not-matter"));
+        assertThat(runtimeException.getMessage(), is("Unexpected credentials type: StringCredentials"));
+    }
 }

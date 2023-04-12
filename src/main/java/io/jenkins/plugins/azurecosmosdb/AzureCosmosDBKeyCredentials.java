@@ -5,5 +5,5 @@ import hudson.util.Secret;
 
 public interface AzureCosmosDBKeyCredentials extends StandardCredentials {
 
-  Secret getKey();
+    Secret getKey();
 }
