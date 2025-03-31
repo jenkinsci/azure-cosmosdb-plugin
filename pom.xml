@@ -100,7 +100,7 @@
     <dependency>
       <groupId>io.jenkins.plugins</groupId>
       <artifactId>azure-sdk</artifactId>
-      <version>174.va_89c1df897d2</version>
+      <version>206.v7df6fdd1d0ff</version>
     </dependency>
     <dependency>
       <groupId>io.jenkins.plugins</groupId>
