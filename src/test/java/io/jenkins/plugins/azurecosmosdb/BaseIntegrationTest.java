@@ -9,7 +9,7 @@ import com.microsoft.azure.util.AzureCredentials;
 import hudson.util.Secret;
 import java.util.List;
 
-public class BaseIntegrationTest {
+class BaseIntegrationTest {
 
     protected static final String KEY_CREDENTIALS_ID = "cosmos-key";
     protected static final String COSMOS_KEY = getEnvVar("IT_COSMOS_KEY");

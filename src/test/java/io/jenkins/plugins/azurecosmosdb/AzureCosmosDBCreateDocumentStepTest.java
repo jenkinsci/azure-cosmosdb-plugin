@@ -15,27 +15,32 @@ import hudson.security.ACL;
 import hudson.security.ACLContext;
 import hudson.util.ListBoxModel;
 import hudson.util.Secret;
-import java.io.IOException;
 import java.util.List;
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.workflow.cps.SnippetizerTester;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.MockAuthorizationStrategy;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
-public class AzureCosmosDBCreateDocumentStepTest {
+@WithJenkins
+class AzureCosmosDBCreateDocumentStepTest {
 
-    @Rule
-    public JenkinsRule r = new JenkinsRule();
+    private JenkinsRule j;
+
+    @BeforeEach
+    void setUp(JenkinsRule rule) {
+        j = rule;
+    }
 
     @Test
-    public void doFillCredentialsIdItemsNoItemNoAdmin() throws IOException {
+    void doFillCredentialsIdItemsNoItemNoAdmin() {
         loadCredentials();
-        JenkinsRule.DummySecurityRealm realm = r.createDummySecurityRealm();
-        r.jenkins.setSecurityRealm(realm);
-        r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy()
+        JenkinsRule.DummySecurityRealm realm = j.createDummySecurityRealm();
+        j.jenkins.setSecurityRealm(realm);
+        j.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy()
                 .grant(Job.CONFIGURE, Item.DISCOVER)
                 .everywhere()
                 .to("cassandra"));
@@ -52,11 +57,11 @@ public class AzureCosmosDBCreateDocumentStepTest {
     }
 
     @Test
-    public void doFillCredentialsIdItemsNoItemHasAdminFindsCredentials() {
+    void doFillCredentialsIdItemsNoItemHasAdminFindsCredentials() {
         loadCredentials();
-        JenkinsRule.DummySecurityRealm realm = r.createDummySecurityRealm();
-        r.jenkins.setSecurityRealm(realm);
-        r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy()
+        JenkinsRule.DummySecurityRealm realm = j.createDummySecurityRealm();
+        j.jenkins.setSecurityRealm(realm);
+        j.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy()
                 .grant(Jenkins.ADMINISTER)
                 .everywhere()
                 .to("cassandra"));
@@ -88,11 +93,11 @@ public class AzureCosmosDBCreateDocumentStepTest {
     }
 
     @Test
-    public void doFillCredentialsIdItemsWithItemNoCredentialsAccess() throws IOException {
+    void doFillCredentialsIdItemsWithItemNoCredentialsAccess() throws Exception {
         loadCredentials();
-        JenkinsRule.DummySecurityRealm realm = r.createDummySecurityRealm();
-        r.jenkins.setSecurityRealm(realm);
-        r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy()
+        JenkinsRule.DummySecurityRealm realm = j.createDummySecurityRealm();
+        j.jenkins.setSecurityRealm(realm);
+        j.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy()
                 .grant(Item.READ, Item.DISCOVER)
                 .everywhere()
                 .to("cassandra"));
@@ -101,7 +106,7 @@ public class AzureCosmosDBCreateDocumentStepTest {
                 new AzureCosmosDBCreateDocumentStep.DescriptorImpl();
 
         User cassandra = requireNonNull(User.getById("cassandra", true));
-        WorkflowJob job = r.createProject(WorkflowJob.class, "pipeline");
+        WorkflowJob job = j.createProject(WorkflowJob.class, "pipeline");
         try (ACLContext ignored = ACL.as2(cassandra.impersonate2())) {
             ListBoxModel listBoxModel = descriptor.doFillCredentialsIdItems(job, "cosmos-connection");
 
@@ -110,11 +115,11 @@ public class AzureCosmosDBCreateDocumentStepTest {
     }
 
     @Test
-    public void doFillCredentialsIdItemsWithItemHasUseItemHasCredentialsAccess() throws IOException {
+    void doFillCredentialsIdItemsWithItemHasUseItemHasCredentialsAccess() throws Exception {
         loadCredentials();
-        JenkinsRule.DummySecurityRealm realm = r.createDummySecurityRealm();
-        r.jenkins.setSecurityRealm(realm);
-        r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy()
+        JenkinsRule.DummySecurityRealm realm = j.createDummySecurityRealm();
+        j.jenkins.setSecurityRealm(realm);
+        j.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy()
                 .grant(CredentialsProvider.USE_ITEM, Item.DISCOVER)
                 .everywhere()
                 .to("cassandra"));
@@ -123,7 +128,7 @@ public class AzureCosmosDBCreateDocumentStepTest {
                 new AzureCosmosDBCreateDocumentStep.DescriptorImpl();
 
         User cassandra = requireNonNull(User.getById("cassandra", true));
-        WorkflowJob job = r.createProject(WorkflowJob.class, "pipeline");
+        WorkflowJob job = j.createProject(WorkflowJob.class, "pipeline");
         try (ACLContext ignored = ACL.as2(cassandra.impersonate2())) {
             ListBoxModel listBoxModel = descriptor.doFillCredentialsIdItems(job, "cosmos-connection");
 
@@ -139,11 +144,11 @@ public class AzureCosmosDBCreateDocumentStepTest {
     }
 
     @Test
-    public void doFillCredentialsIdItemsWithItemFindsCredential() throws IOException {
+    void doFillCredentialsIdItemsWithItemFindsCredential() throws Exception {
         loadCredentials();
-        JenkinsRule.DummySecurityRealm realm = r.createDummySecurityRealm();
-        r.jenkins.setSecurityRealm(realm);
-        r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy()
+        JenkinsRule.DummySecurityRealm realm = j.createDummySecurityRealm();
+        j.jenkins.setSecurityRealm(realm);
+        j.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy()
                 .grant(Job.CONFIGURE, Item.DISCOVER)
                 .everywhere()
                 .to("cassandra"));
@@ -152,7 +157,7 @@ public class AzureCosmosDBCreateDocumentStepTest {
                 new AzureCosmosDBCreateDocumentStep.DescriptorImpl();
 
         User cassandra = requireNonNull(User.getById("cassandra", true));
-        WorkflowJob job = r.createProject(WorkflowJob.class, "pipeline");
+        WorkflowJob job = j.createProject(WorkflowJob.class, "pipeline");
         try (ACLContext ignored = ACL.as2(cassandra.impersonate2())) {
             ListBoxModel listBoxModel = descriptor.doFillCredentialsIdItems(job, "cosmos-connection");
 
@@ -161,11 +166,11 @@ public class AzureCosmosDBCreateDocumentStepTest {
     }
 
     @Test
-    public void configRoundTrip() throws Exception {
+    void configRoundTrip() throws Exception {
         AzureCosmosDBCreateDocumentStep step =
                 new AzureCosmosDBCreateDocumentStep("cosmos-connection", "jenkins", "jenkins", "{ \"id\": \"1234\" }");
 
-        SnippetizerTester st = new SnippetizerTester(r);
+        SnippetizerTester st = new SnippetizerTester(j);
         st.assertRoundTrip(
                 step,
                 "azureCosmosDBCreateDocument container: 'jenkins', credentialsId: 'cosmos-connection', database: 'jenkins', document: '{ \"id\": \"1234\" }'");
@@ -176,11 +181,11 @@ public class AzureCosmosDBCreateDocumentStepTest {
      * providing a document during snippet generation.
      */
     @Test
-    public void configRoundTripAllowEmptyDocument() throws Exception {
+    void configRoundTripAllowEmptyDocument() throws Exception {
         AzureCosmosDBCreateDocumentStep step =
                 new AzureCosmosDBCreateDocumentStep("cosmos-connection", "jenkins", "jenkins", "");
 
-        SnippetizerTester st = new SnippetizerTester(r);
+        SnippetizerTester st = new SnippetizerTester(j);
         st.assertRoundTrip(
                 step,
                 "azureCosmosDBCreateDocument container: 'jenkins', credentialsId: 'cosmos-connection', database: 'jenkins'");

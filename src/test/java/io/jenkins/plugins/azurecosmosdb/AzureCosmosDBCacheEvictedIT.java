@@ -3,40 +3,35 @@ package io.jenkins.plugins.azurecosmosdb;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
-import static org.jvnet.hudson.test.LoggerRule.recorded;
+import static org.jvnet.hudson.test.LogRecorder.recorded;
 
 import com.azure.cosmos.CosmosClient;
 import com.azure.cosmos.implementation.RxDocumentClientImpl;
 import java.util.logging.Level;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TestRule;
-import org.jvnet.hudson.test.FlagRule;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.SetSystemProperty;
 import org.jvnet.hudson.test.JenkinsRule;
-import org.jvnet.hudson.test.LoggerRule;
+import org.jvnet.hudson.test.LogRecorder;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
-public class AzureCosmosDBCacheEvictedIT extends BaseIntegrationTest {
+@WithJenkins
+@SetSystemProperty(key = "io.jenkins.plugins.azurecosmosdb.AzureCosmosDBCache.MAX_CACHE_SIZE", value = "1")
+class AzureCosmosDBCacheEvictedIT extends BaseIntegrationTest {
 
-    public JenkinsRule j = new JenkinsRule();
+    private final LogRecorder recorder =
+            new LogRecorder().record(RxDocumentClientImpl.class, Level.INFO).capture(100);
 
-    public TestRule flagRule =
-            FlagRule.systemProperty("io.jenkins.plugins.azurecosmosdb.AzureCosmosDBCache.MAX_CACHE_SIZE", "1");
+    private JenkinsRule j;
 
-    public LoggerRule loggerRule =
-            new LoggerRule().record(RxDocumentClientImpl.class, Level.INFO).capture(100);
-
-    @Rule
-    public RuleChain chain = RuleChain.outerRule(flagRule).around(j).around(loggerRule);
-
-    @Before
-    public void before() {
+    @BeforeEach
+    void setUp(JenkinsRule rule) {
+        j = rule;
         AzureCosmosDBCache.invalidateCache();
     }
 
     @Test
-    public void keyClientsAreCached() throws InterruptedException {
+    void keyClientsAreCached() throws Exception {
         String credentialsId = loadValidCredentials();
         AzureCosmosDBCache.get(credentialsId, null);
         CosmosClient cosmosClient = AzureCosmosDBCache.get(credentialsId, null);
@@ -51,11 +46,11 @@ public class AzureCosmosDBCacheEvictedIT extends BaseIntegrationTest {
         waitForEvictionListenerToRun();
 
         assertThat(AzureCosmosDBCache.cacheSize(), equalTo(1L));
-        assertThat(loggerRule, recorded(Level.WARNING, containsString("Already shutdown!")));
+        assertThat(recorder, recorded(Level.WARNING, containsString("Already shutdown!")));
     }
 
     @Test
-    public void keyClientsAreCachedAndAlreadyClosedClientsAreIgnored() throws InterruptedException {
+    void keyClientsAreCachedAndAlreadyClosedClientsAreIgnored() throws Exception {
         String credentialsId = loadValidCredentials();
         AzureCosmosDBCache.get(credentialsId, null);
         CosmosClient cosmosClient = AzureCosmosDBCache.get(credentialsId, null);
@@ -70,10 +65,10 @@ public class AzureCosmosDBCacheEvictedIT extends BaseIntegrationTest {
         waitForEvictionListenerToRun();
 
         assertThat(AzureCosmosDBCache.cacheSize(), equalTo(1L));
-        assertThat(loggerRule, recorded(Level.WARNING, containsString("Already shutdown!")));
+        assertThat(recorder, recorded(Level.WARNING, containsString("Already shutdown!")));
     }
 
-    private void waitForEvictionListenerToRun() throws InterruptedException {
+    private void waitForEvictionListenerToRun() throws Exception {
         long attempts = 0;
         while (AzureCosmosDBCache.cacheSize() != 1L) {
             Thread.sleep(50L);

@@ -16,27 +16,33 @@ import java.util.UUID;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
 /**
  * Run with failsafe:integration-test, this isn't bound to a phase by default relies on pre-existing
  * cloud resources, see the required variables at the top of the test.
  */
-public class AzureCosmosDBCreateDocumentStepIT extends BaseIntegrationTest {
+@WithJenkins
+class AzureCosmosDBCreateDocumentStepIT extends BaseIntegrationTest {
 
     private static final String DEFAULT_PIPELINE_NAME = "test-scripted-pipeline";
 
-    @Rule
-    public JenkinsRule jenkins = new JenkinsRule();
+    private JenkinsRule j;
+
+    @BeforeEach
+    void setUp(JenkinsRule rule) {
+        j = rule;
+    }
 
     @Test
-    public void testScriptedPipeline() throws Exception {
+    void testScriptedPipeline() throws Exception {
         String cosmosCredentialsId = loadValidCredentials();
         String id = UUID.randomUUID().toString();
 
-        WorkflowJob job = jenkins.createProject(WorkflowJob.class, DEFAULT_PIPELINE_NAME);
+        WorkflowJob job = j.createProject(WorkflowJob.class, DEFAULT_PIPELINE_NAME);
         String pipelineScript = "azureCosmosDBCreateDocument credentialsId: '"
                 + cosmosCredentialsId
                 + "', database: '"
@@ -47,9 +53,9 @@ public class AzureCosmosDBCreateDocumentStepIT extends BaseIntegrationTest {
                 + id
                 + "']";
         job.setDefinition(new CpsFlowDefinition(pipelineScript, true));
-        WorkflowRun completedBuild = jenkins.assertBuildStatusSuccess(job.scheduleBuild2(0));
+        WorkflowRun completedBuild = j.assertBuildStatusSuccess(job.scheduleBuild2(0));
         String expectedString = "Created document in database";
-        jenkins.assertLogContains(expectedString, completedBuild);
+        j.assertLogContains(expectedString, completedBuild);
 
         CosmosClient cosmosClient = AzureCosmosDBCache.get(cosmosCredentialsId, job);
         CosmosDatabase database = cosmosClient.getDatabase(DATABASE_NAME);
@@ -66,11 +72,11 @@ public class AzureCosmosDBCreateDocumentStepIT extends BaseIntegrationTest {
     }
 
     @Test
-    public void testMissingDatabase() throws Exception {
+    void testMissingDatabase() throws Exception {
         String cosmosCredentialsId = loadValidCredentials();
         String id = UUID.randomUUID().toString();
 
-        WorkflowJob job = jenkins.createProject(WorkflowJob.class, DEFAULT_PIPELINE_NAME);
+        WorkflowJob job = j.createProject(WorkflowJob.class, DEFAULT_PIPELINE_NAME);
         String pipelineScript = "azureCosmosDBCreateDocument credentialsId: '"
                 + cosmosCredentialsId
                 + "', container: '"
@@ -79,17 +85,17 @@ public class AzureCosmosDBCreateDocumentStepIT extends BaseIntegrationTest {
                 + id
                 + "']";
         job.setDefinition(new CpsFlowDefinition(pipelineScript, true));
-        WorkflowRun completedBuild = jenkins.assertBuildStatus(Result.FAILURE, job.scheduleBuild2(0));
+        WorkflowRun completedBuild = j.assertBuildStatus(Result.FAILURE, job.scheduleBuild2(0));
         String expectedString = "Database must be set";
-        jenkins.assertLogContains(expectedString, completedBuild);
+        j.assertLogContains(expectedString, completedBuild);
     }
 
     @Test
-    public void documentAsString() throws Exception {
+    void documentAsString() throws Exception {
         String cosmosCredentialsId = loadValidCredentials();
         String id = UUID.randomUUID().toString();
 
-        WorkflowJob job = jenkins.createProject(WorkflowJob.class, DEFAULT_PIPELINE_NAME);
+        WorkflowJob job = j.createProject(WorkflowJob.class, DEFAULT_PIPELINE_NAME);
         String pipelineScript = "azureCosmosDBCreateDocument credentialsId: '"
                 + cosmosCredentialsId
                 + "', database: '"
@@ -100,9 +106,9 @@ public class AzureCosmosDBCreateDocumentStepIT extends BaseIntegrationTest {
                 + id
                 + "\" }'";
         job.setDefinition(new CpsFlowDefinition(pipelineScript, true));
-        WorkflowRun completedBuild = jenkins.assertBuildStatusSuccess(job.scheduleBuild2(0));
+        WorkflowRun completedBuild = j.assertBuildStatusSuccess(job.scheduleBuild2(0));
         String expectedString = "Created document in database";
-        jenkins.assertLogContains(expectedString, completedBuild);
+        j.assertLogContains(expectedString, completedBuild);
     }
 
     public static class Id {
