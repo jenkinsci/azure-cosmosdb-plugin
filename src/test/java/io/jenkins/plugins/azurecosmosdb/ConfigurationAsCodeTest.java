@@ -16,21 +16,19 @@ import io.jenkins.plugins.casc.ConfigurationContext;
 import io.jenkins.plugins.casc.ConfiguratorRegistry;
 import io.jenkins.plugins.casc.misc.ConfiguredWithCode;
 import io.jenkins.plugins.casc.misc.JenkinsConfiguredWithCodeRule;
+import io.jenkins.plugins.casc.misc.junit.jupiter.WithJenkinsConfiguredWithCode;
 import io.jenkins.plugins.casc.model.CNode;
 import io.jenkins.plugins.casc.model.Mapping;
 import java.util.List;
 import java.util.Objects;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class ConfigurationAsCodeTest {
-
-    @ClassRule
-    @ConfiguredWithCode("configuration-as-code.yml")
-    public static JenkinsConfiguredWithCodeRule r = new JenkinsConfiguredWithCodeRule();
+@WithJenkinsConfiguredWithCode
+class ConfigurationAsCodeTest {
 
     @Test
-    public void importConfig() {
+    @ConfiguredWithCode("configuration-as-code.yml")
+    void importConfig(JenkinsConfiguredWithCodeRule r) {
         SystemCredentialsProvider instance = SystemCredentialsProvider.getInstance();
         List<Credentials> credentials = instance.getCredentials();
         assertThat(credentials, hasSize(2));
@@ -51,7 +49,8 @@ public class ConfigurationAsCodeTest {
     }
 
     @Test
-    public void exportConfig() throws Exception {
+    @ConfiguredWithCode("configuration-as-code.yml")
+    void exportConfig(JenkinsConfiguredWithCodeRule r) throws Exception {
         ConfiguratorRegistry registry = ConfiguratorRegistry.get();
         ConfigurationContext context = new ConfigurationContext(registry);
         CNode yourAttribute = getCredentialsRoot(context).get("system");

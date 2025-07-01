@@ -14,22 +14,28 @@ import hudson.util.FormValidation;
 import hudson.util.Secret;
 import java.util.List;
 import jenkins.model.Jenkins;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.MockAuthorizationStrategy;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
-public class AzureCosmosDBCredentialsImplIT extends BaseIntegrationTest {
+@WithJenkins
+class AzureCosmosDBCredentialsImplIT extends BaseIntegrationTest {
 
-    @Rule
-    public JenkinsRule r = new JenkinsRule();
+    private JenkinsRule j;
+
+    @BeforeEach
+    void setUp(JenkinsRule rule) {
+        j = rule;
+    }
 
     @Test
-    public void doTestConnectionAdminValidatesOk() {
+    void doTestConnectionAdminValidatesOk() {
         loadCredentials();
-        JenkinsRule.DummySecurityRealm realm = r.createDummySecurityRealm();
-        r.jenkins.setSecurityRealm(realm);
-        r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy()
+        JenkinsRule.DummySecurityRealm realm = j.createDummySecurityRealm();
+        j.jenkins.setSecurityRealm(realm);
+        j.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy()
                 .grant(Jenkins.ADMINISTER)
                 .everywhere()
                 .to("cassandra"));
@@ -46,11 +52,11 @@ public class AzureCosmosDBCredentialsImplIT extends BaseIntegrationTest {
     }
 
     @Test
-    public void doTestConnectionWithServicePrincipalAndAdminValidatesOk() {
+    void doTestConnectionWithServicePrincipalAndAdminValidatesOk() {
         loadServicePrincipalCredentials();
-        JenkinsRule.DummySecurityRealm realm = r.createDummySecurityRealm();
-        r.jenkins.setSecurityRealm(realm);
-        r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy()
+        JenkinsRule.DummySecurityRealm realm = j.createDummySecurityRealm();
+        j.jenkins.setSecurityRealm(realm);
+        j.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy()
                 .grant(Jenkins.ADMINISTER)
                 .everywhere()
                 .to("cassandra"));
@@ -72,14 +78,14 @@ public class AzureCosmosDBCredentialsImplIT extends BaseIntegrationTest {
      * configuration for it.
      */
     @Test
-    public void doTestConnectionAdminInvalidKeyAndAccountErrors() {
+    void doTestConnectionAdminInvalidKeyAndAccountErrors() {
         List<Credentials> credentials = SystemCredentialsProvider.getInstance().getCredentials();
         credentials.add(
                 new AzureCosmosDBKeyCredentialsImpl("key", null, Secret.fromString("dGhpc2lzbm90YXBhc3N3b3JkCg==")));
 
-        JenkinsRule.DummySecurityRealm realm = r.createDummySecurityRealm();
-        r.jenkins.setSecurityRealm(realm);
-        r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy()
+        JenkinsRule.DummySecurityRealm realm = j.createDummySecurityRealm();
+        j.jenkins.setSecurityRealm(realm);
+        j.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy()
                 .grant(Jenkins.ADMINISTER)
                 .everywhere()
                 .to("cassandra"));

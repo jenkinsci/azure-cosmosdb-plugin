@@ -4,23 +4,24 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 import com.azure.cosmos.CosmosClient;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
-public class AzureCosmosDBCacheIT extends BaseIntegrationTest {
+@WithJenkins
+class AzureCosmosDBCacheIT extends BaseIntegrationTest {
 
-    @Rule
-    public JenkinsRule jenkins = new JenkinsRule();
+    private JenkinsRule j;
 
-    @Before
-    public void before() {
+    @BeforeEach
+    void setUp(JenkinsRule rule) {
+        j = rule;
         AzureCosmosDBCache.invalidateCache();
     }
 
     @Test
-    public void keyClientsAreCached() {
+    void keyClientsAreCached() {
         String credentialsId = loadValidCredentials();
         AzureCosmosDBCache.get(credentialsId, null);
         CosmosClient cosmosClient = AzureCosmosDBCache.get(credentialsId, null);
@@ -30,7 +31,7 @@ public class AzureCosmosDBCacheIT extends BaseIntegrationTest {
     }
 
     @Test
-    public void keyAndSpClientsCacheMiss() {
+    void keyAndSpClientsCacheMiss() {
         String credentialsId = loadValidCredentials();
         String spCredentialsId = loadServicePrincipalCredentials();
         AzureCosmosDBCache.get(credentialsId, null);
@@ -40,7 +41,7 @@ public class AzureCosmosDBCacheIT extends BaseIntegrationTest {
     }
 
     @Test
-    public void spClientsAreCached() {
+    void spClientsAreCached() {
         String spCredentialsId = loadServicePrincipalCredentials();
         AzureCosmosDBCache.get(spCredentialsId, null);
         AzureCosmosDBCache.get(spCredentialsId, null);

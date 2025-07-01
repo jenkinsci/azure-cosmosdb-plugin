@@ -3,7 +3,7 @@ package io.jenkins.plugins.azurecosmosdb;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.cloudbees.plugins.credentials.Credentials;
 import com.cloudbees.plugins.credentials.CredentialsScope;
@@ -14,25 +14,31 @@ import hudson.util.Secret;
 import io.jenkins.plugins.azurecosmosdb.AzureCosmosDBCache.CacheKey;
 import java.util.List;
 import org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.WithoutJenkins;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
-public class AzureCosmosDBCacheTest {
+@WithJenkins
+class AzureCosmosDBCacheTest {
 
-    @Rule
-    public JenkinsRule jenkins = new JenkinsRule();
+    private JenkinsRule j;
+
+    @BeforeEach
+    void setUp(JenkinsRule rule) {
+        j = rule;
+    }
 
     @Test
-    public void missingCredentialsId() {
+    void missingCredentialsId() {
         RuntimeException runtimeException =
                 assertThrows(RuntimeException.class, () -> AzureCosmosDBCache.get("does-not-exist", null));
         assertThat(runtimeException.getMessage(), is("Could not find credentials: does-not-exist"));
     }
 
     @Test
-    public void credentialsWithInvalidType() {
+    void credentialsWithInvalidType() {
         List<Credentials> credentials = SystemCredentialsProvider.getInstance().getCredentials();
         String id = "invalid-type";
         credentials.add(new StringCredentialsImpl(null, id, null, Secret.fromString("some-string")));
@@ -46,7 +52,7 @@ public class AzureCosmosDBCacheTest {
 
     @Test
     @WithoutJenkins
-    public void toStringAsExpected() {
+    void toStringAsExpected() {
         AzureCosmosDBKeyCredentialsImpl credentials =
                 new AzureCosmosDBKeyCredentialsImpl("key", null, Secret.fromString("abcd"));
         CacheKey cacheKey = new CacheKey(credentials, "https://your-account-name.documents.azure.com:443/", "UK South");
@@ -59,7 +65,7 @@ public class AzureCosmosDBCacheTest {
 
     @Test
     @WithoutJenkins
-    public void equalsIsFalseForNonMatchingType() {
+    void equalsIsFalseForNonMatchingType() {
         String url = "https://your-account-name.documents.azure.com:443/";
         StringCredentialsImpl stringCredentials =
                 new StringCredentialsImpl(CredentialsScope.GLOBAL, "id", null, Secret.fromString("a"));
@@ -73,7 +79,7 @@ public class AzureCosmosDBCacheTest {
 
     @Test
     @WithoutJenkins
-    public void equalsIsFalseForInvalidType() {
+    void equalsIsFalseForInvalidType() {
         String url = "https://your-account-name.documents.azure.com:443/";
         StringCredentialsImpl stringCredentials =
                 new StringCredentialsImpl(CredentialsScope.GLOBAL, "id", null, Secret.fromString("a"));
@@ -85,7 +91,7 @@ public class AzureCosmosDBCacheTest {
 
     @Test
     @WithoutJenkins
-    public void equalsMatchesForImdsCredentials() {
+    void equalsMatchesForImdsCredentials() {
         String url = "https://your-account-name.documents.azure.com:443/";
         AzureImdsCredentials imdsCredentials = new AzureImdsCredentials(CredentialsScope.GLOBAL, "id", null);
         CacheKey imds1 = new CacheKey(imdsCredentials, url, "UK South");
@@ -96,7 +102,7 @@ public class AzureCosmosDBCacheTest {
 
     @Test
     @WithoutJenkins
-    public void equalsDoesNotMatchesForDifferentTenantSpCredentials() {
+    void equalsDoesNotMatchesForDifferentTenantSpCredentials() {
         String url = "https://your-account-name.documents.azure.com:443/";
         AzureCredentials sp =
                 new AzureCredentials(CredentialsScope.GLOBAL, "sp", null, "1234", "12345", Secret.fromString("1234"));
@@ -113,7 +119,7 @@ public class AzureCosmosDBCacheTest {
 
     @Test
     @WithoutJenkins
-    public void equalsDoesNotMatchWhenDifferentIds() {
+    void equalsDoesNotMatchWhenDifferentIds() {
         String url = "https://your-account-name.documents.azure.com:443/";
         AzureImdsCredentials imdsCredentials = new AzureImdsCredentials(CredentialsScope.GLOBAL, "id", null);
         AzureImdsCredentials imdsCredentials2 = new AzureImdsCredentials(CredentialsScope.GLOBAL, "id2", null);
@@ -126,7 +132,7 @@ public class AzureCosmosDBCacheTest {
     @Test
     @WithoutJenkins
     @SuppressWarnings("ConstantConditions")
-    public void nullEqualsIsNotEqual() {
+    void nullEqualsIsNotEqual() {
         String url = "https://your-account-name.documents.azure.com:443/";
         AzureImdsCredentials imdsCredentials = new AzureImdsCredentials(CredentialsScope.GLOBAL, "id", null);
         CacheKey imds1 = new CacheKey(imdsCredentials, url, "UK South");
@@ -137,7 +143,7 @@ public class AzureCosmosDBCacheTest {
     @Test
     @WithoutJenkins
     @SuppressWarnings("EqualsWithItself")
-    public void sameReferenceIsEqual() {
+    void sameReferenceIsEqual() {
         String url = "https://your-account-name.documents.azure.com:443/";
         AzureImdsCredentials imdsCredentials = new AzureImdsCredentials(CredentialsScope.GLOBAL, "id", null);
         CacheKey imds1 = new CacheKey(imdsCredentials, url, "UK South");
