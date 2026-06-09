@@ -48,6 +48,16 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+      <!--
+        azure-cosmos declares HdrHistogram:2.1.12, but micrometer-core (a transitive
+        dependency of azure-cosmos) requires HdrHistogram:2.2.2. Pin to 2.2.2 to satisfy
+        the requireUpperBoundDeps enforcer rule.
+      -->
+      <dependency>
+        <groupId>org.hdrhistogram</groupId>
+        <artifactId>HdrHistogram</artifactId>
+        <version>2.2.2</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -55,7 +65,7 @@
     <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-cosmos</artifactId>
-      <version>4.73.1</version>
+      <version>4.81.0</version>
       <exclusions>
         <exclusion>
           <groupId>com.azure</groupId>
