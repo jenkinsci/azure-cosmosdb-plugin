@@ -19,7 +19,6 @@ import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import java.util.Collections;
 import jenkins.model.Jenkins;
-import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -107,7 +106,7 @@ public class AzureCosmosDBCredentialsImpl extends BaseStandardCredentials implem
                     return FormValidation.ok();
                 }
             }
-            if (StringUtils.isBlank(credentialsId)) {
+            if (credentialsId == null || credentialsId.isBlank()) {
                 return FormValidation.ok();
             }
 
