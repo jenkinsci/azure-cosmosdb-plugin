@@ -9,3 +9,5 @@ domainCredentials:
       preferredRegion: "UK South"
       scope: GLOBAL
       url: "https://your-account-name.documents.azure.com:443/"
+  domain: {
+    }
